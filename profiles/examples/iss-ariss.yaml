@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: CC-BY-4.0
+# Public example profile: ISS ARISS packet digipeater (all values are public record).
+# Validate with: python tools/validate_profile.py profiles/examples/iss-ariss.yaml
+
+schema_version: 1
+type: amateur-satellite
+
+identity:
+  name: ISS ARISS packet digipeater
+  norad_id: 25544
+  intl_designator: 1998-067A
+  operator: ARISS
+
+links:
+  - name: aprs_digipeater
+    direction: duplex
+    freq_mhz_min: 145.824
+    freq_mhz_max: 145.826
+    modulations: [afsk]
+    notes: >-
+      1200-baud AFSK APRS digipeater centered on 145.825 MHz. Receivable with
+      an RTL-SDR and a simple VHF antenna; two-way use requires an amateur
+      license.
+
+notes: >-
+  1200-baud AFSK APRS digipeater on 145.825 MHz aboard the International
+  Space Station — a long-running ARISS service and a classic first two-way
+  satellite target. The service is periodically taken offline for crew
+  activities and hardware changes, so verify current status at ariss.org
+  before relying on it.

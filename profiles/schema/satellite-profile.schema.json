@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GoodAncestor/comms-station/profiles/schema/satellite-profile.schema.json",
+  "title": "Satellite contact profile",
+  "description": "Machine-readable description of a satellite a station may observe or work. The public repo ships only public example profiles; operators load private profiles for spacecraft they are authorized to work. Additional keys (hunt, stages, notes, ...) are permitted anywhere so profiles can carry mission-specific extensions without schema changes.",
+  "type": "object",
+  "required": ["schema_version", "type", "identity", "links"],
+  "properties": {
+    "schema_version": {
+      "description": "Version of this profile schema the document targets.",
+      "type": ["string", "integer"]
+    },
+    "type": {
+      "description": "Profile type. Determines which tooling plugins (waveforms, decoders, receivers) apply.",
+      "type": "string",
+      "enum": [
+        "datacast-satellite",
+        "weather-satellite",
+        "amateur-satellite",
+        "inmarsat",
+        "generic"
+      ]
+    },
+    "identity": {
+      "description": "Who the spacecraft is. norad_id may be null when unknown (e.g. during a hunt).",
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "norad_id": {
+          "type": ["integer", "null"]
+        },
+        "intl_designator": {
+          "type": ["string", "null"]
+        },
+        "operator": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "links": {
+      "description": "RF links the station may use or observe, one entry per link.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "direction",
+          "freq_mhz_min",
+          "freq_mhz_max",
+          "modulations"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["uplink", "downlink", "duplex"]
+          },
+          "freq_mhz_min": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "freq_mhz_max": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "modulations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "hunt": {
+      "description": "Optional blind-search parameters for spacecraft whose state is uncertain.",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "stages": {
+      "description": "Optional staged mission plan (e.g. acquire, receive, transmit) with gates.",
+      "type": ["array", "object"]
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
