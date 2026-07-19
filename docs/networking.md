@@ -40,6 +40,20 @@ Commodity 2.4/5 GHz Wi-Fi radios — the ubiquitous outdoor CPE and sector units
 
 Both are excellent where line of sight and elevation are available. Their weakness is exactly that dependence: throughput falls off hard without a clear path, and 2.4/5 GHz does not go through terrain or foliage well.
 
+### AREDN as a unified, routed mesh platform
+
+A station MAY run a mature ham-mesh platform (AREDN is the established example) to fold two roles that would otherwise be separate networks — a **directional long-haul backhaul** and a **local-area mesh** — into a *single routed mesh*. The mechanism is device-to-device (**DtD**) linking over Ethernet: co-locate a directional backhaul radio and a local-coverage node, patch them together with an Ethernet cable, and the platform routes across them as one mesh rather than two islands. One radio points a narrow beam at a distant relay; the other blankets the immediate area; traffic routes between them automatically, no manual bridging.
+
+Such platforms run on **commodity gear** — ordinary outdoor Wi-Fi CPE/sector radios for a high-throughput backhaul, and sub-GHz HaLow boards (§2) for local coverage — reflashed with the mesh firmware. One option worth knowing is that they can also run **as a virtual machine**: a supernode or internet-tunnel node stood up on ordinary server/hypervisor infrastructure gives a *mobile* mesh a **persistent home backbone** it can tunnel back to over whatever internet path it currently has. A station that is sometimes on satellite, sometimes on a public uplink, and sometimes fully off-grid then keeps a stable presence on the wider mesh whenever it has *any* path, and stands alone when it has none. Such tunnel/virtual nodes are a mainstream, first-class part of these networks, not a workaround.
+
+**Band reality.** For the high-throughput layer, **5 GHz is the established backbone**: it has by far the largest deployed peer base, so it serves as both the fast trunk *and* the interoperability path to any existing mesh in the area. Sub-GHz **Wi-Fi HaLow** is newer — its strength is local **non-line-of-sight** coverage (better terrain/foliage penetration for a given power), not reaching distant peers, of which there are currently few. A practical default: run HaLow as a coverage bubble for your own area, and 5 GHz as the long-haul trunk and the way you interoperate with others.
+
+### Regulatory split: licensed performance beside license-free access
+
+Mature ham-mesh platforms (AREDN and similar) operate under the **licensed amateur radio service**. That buys high performance and generous power/antenna limits, but it comes with amateur-service rules: a **licensed control operator**, **identifiable** operation (no anonymous use), and **no content encryption**. Excellent for a station's own high-throughput backbone; unsuitable as an open, private, anyone-can-use network.
+
+So a station SHOULD pair a licensed backbone with a **license-free layer** that anyone may use and that *can* be encrypted: a low-rate **LoRa mesh** (Meshtastic-class, below) plus **Part-15 Wi-Fi** — an ordinary encryptable access point. Keep the two as **separate meshes for separate users**: the licensed layer for reach and throughput, the license-free layer for open, private, no-license access. Importantly, **the same hardware can serve either layer** depending on firmware and band — a radio flashed for the ham-mesh platform on an amateur channel is a backbone node, while the same class of radio on stock firmware and an ISM/Part-15 channel is a license-free node. Firmware and band, not the hardware, decide which layer a device belongs to.
+
 ### Meshtastic over LoRa
 
 Where Wi-Fi cannot reach, **Meshtastic over LoRa** carries low-rate text, position, and telemetry across kilometres at milliwatt power on 900 MHz-class ISM bands (region-dependent). It is the most accessible bearer of all — inexpensive nodes, battery-friendly, no license required in most regions — and it degrades gracefully where everything faster has failed.
@@ -148,6 +162,19 @@ A sensible WAN priority order, highest first:
 3. cellular
 4. public Wi-Fi repeater
 ```
+
+### The edge/WAN router is a role, not a brand
+
+The device that pulls in an uplink and re-serves it locally is a **role**, and almost any OpenWrt-supported dual-band AP/router can fill it. Two capabilities define the role:
+
+- **Concurrent AP + STA (repeater mode).** The chipset must act as a **station** — associating *upstream* to a satellite terminal, a café/marina hotspot, or any public Wi-Fi — *while simultaneously* acting as an **access point** serving the station's own local Wi-Fi. Not every chipset does both at once; verify concurrent AP+STA before choosing a unit.
+- **Removable external antennas, routed high.** Picking up weak, distant Wi-Fi is reception-limited — a router buried in the cabin grabs very little. Choose a unit with **removable external antennas** so the antenna can be run up to the **roof** for reception: a roof omni for always-available pickup, and optionally a directional Wi-Fi CPE aimed at a known distant access point.
+
+**Cellular WAN is a separate axis.** Repeating public Wi-Fi and connecting over cellular are different jobs. Cellular needs either a **modem-equipped router** or a **USB LTE/5G modem** attached to the router — choose that capability independently of the AP+STA/antenna requirements above.
+
+**A general-purpose SBC is the wrong tool here.** A single-board computer *can* be coaxed into this with a USB Wi-Fi adapter, but concurrent AP+STA, captive-portal handling, and multi-WAN failover are fiddly to build and keep working — don't spend scarce SBC compute reinventing an inexpensive purpose-built router. Use a router built for the job.
+
+This is a **cabin / always-on** function: it works while the station is moving, distinct from the parked-deploy mast head. Polished travel-router firmware (a GL.iNet-class device is one common example) bundles one-click repeater, captive-portal login, and multi-WAN, but the *requirement* is only the generic OpenWrt AP+STA role — any device that fills it works.
 
 ### Optional satellite uplink
 

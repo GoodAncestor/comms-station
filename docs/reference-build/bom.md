@@ -91,9 +91,12 @@ receive paths are license-free in most places, but check local rules.
 | Item (example) | Role | Qty | Indicative cost band (US$) | Class |
 |---|---|---:|---|---|
 | Multi-WAN travel router (e.g. GL.iNet class) | Edge firewall, VPN, WAN failover policy, LAN segmentation; the network trust boundary | 1 | $100–250 | core |
+| Edge/WAN uplink repeater router — OpenWrt dual-band, concurrent AP+STA, removable external antennas (e.g. GL.iNet class) | Uplinks to a satellite terminal or public Wi-Fi while serving local Wi-Fi; roof-routed external antennas for weak-signal pickup. A separate cellular axis (modem-equipped or a USB LTE/5G modem) adds cellular WAN. May be the same physical unit as the multi-WAN router above | 1 | $50–150 | core (fills the edge/WAN role) |
 | Managed Ethernet switch (VLAN-capable) | Core wired backbone and VLAN segmentation between compute, radio, and mesh domains | 1 | $50–200 | core |
 | Satellite broadband terminal (e.g. Starlink Mini) | Optional WAN/backhaul where available | 1 | $300–500 (hardware) | optional |
 | HaLow/OpenMANET anchor node — SBC + 802.11ah radio (e.g. Pi 5 + MM8108) | Vehicle's primary long-range Wi-Fi mesh anchor and gateway | 1 | $150–300 | core (for the Form-networks pillar) |
+| Directional 5 GHz backhaul radio — outdoor CPE/dish, mesh-firmware capable (e.g. Ubiquiti NanoBeam class flashed for AREDN) | High-throughput point-to-point backbone trunk to a distant relay; the interop path to any existing area mesh; DtD-linked to a local-coverage node for one routed mesh | 1 | $50–120 | optional (high-throughput backbone upgrade) |
+| Sub-GHz Wi-Fi HaLow area node — 902–928 MHz mesh radio (e.g. Heltec HaLow class, mesh firmware) | Local non-line-of-sight coverage bubble; DtD-linked over Ethernet to the 5 GHz backhaul radio so both join one routed mesh | 1 | $50–120 | optional (local NLOS coverage) |
 | Deployable HaLow relay/service node — SBC + 802.11ah radio, cased (e.g. Pi 4 + MM6108) | Drop-off mesh relays and service nodes extending coverage | 2+ | $150–250 each | optional |
 | Additional generic mesh node — SBC for 802.11s/BATMAN infrastructure | Extra field relays, remote SDR/ADS-B hosts, store-and-forward and service endpoints | as needed | $100–250 each | optional |
 | HaLow USB dongles / gateway boards (e.g. Heltec HaLow class) | End-device adapters, test nodes, auxiliary links; treat as auxiliary tier until interoperability is proven | several | $30–60 each | optional |
