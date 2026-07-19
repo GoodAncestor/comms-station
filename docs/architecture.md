@@ -10,7 +10,7 @@ The design rule that everything else follows from:
 
 The model never touches hardware directly. Every action flows through a typed request that a conventional, auditable service checks against policy, state, legality, power, and antenna constraints before anything keys up, rotates, or draws current.
 
-This document describes the system in four parts: the tiered power-and-control architecture, the communications topology, the canonical-state command flow, and how the project's four pillars map onto subsystems. Companion documents cover the [safety model](safety-model.md), the [AI agent](ai-agent.md), and the [satellite profile system](satellite-profiles.md).
+This document is the **map**. It describes the system in four parts — the tiered power-and-control architecture, the communications topology, the canonical-state command flow, and how the project's four pillars map onto subsystems — and points to the sibling documents that treat each subsystem in depth. Read it to understand how the pieces fit; follow the links in [See also](#see-also) for the detail behind any one of them.
 
 ## 1. Tiered power and control architecture
 
@@ -61,6 +61,8 @@ TIER 3 — POWER-GATED PERIPHERALS
 
 The tiers are roles, not shopping lists. Any hardware that fills a role works; the profile system (see §5 and [satellite-profiles.md](satellite-profiles.md)) binds roles to concrete devices per station. The Good Ancestor VW bus ([ev.goodancestor.com](https://ev.goodancestor.com)) is the reference profile — the build the project's requirements are drawn from and tested against.
 
+Two things this section deliberately leaves as roles are treated in full elsewhere: the electrical layer beneath the tiers — Tier 0 supervision, per-domain switching, budgeting, and load-shedding — is detailed in [power.md](power.md), and the conventional-radio and SDR subsystems that populate Tiers 2 and 3 are detailed in [radios.md](radios.md).
+
 ## 2. Communications topology
 
 ```text
@@ -90,6 +92,8 @@ Three properties matter more than the specific boxes:
 1. **The WAN is optional.** Internet uplinks (satellite terminal, cellular, borrowed Wi-Fi) are treated as one more bearer — useful when present, never assumed. Every core function, including the AI, runs fully offline.
 2. **The station is a network anchor, not just a terminal.** The mesh gateway side (HaLow/OpenMANET, Meshtastic, Reticulum) exists to give *other people* connectivity: field relays are deployed outward from the station, and local services are published to mesh clients.
 3. **Control and RF are segregated.** Radios and SDRs hang off the mission controller and the AI node through explicit control paths (CAT/serial, LAN, USB), and mesh clients are firewalled from the control plane. A device on the mesh can use the station's services; it cannot command the station.
+
+The diagram above is the shape, not the wiring. The full network design — edge routing and WAN-failover policy, LAN/VLAN segmentation, and the mesh tier (HaLow/OpenMANET, Meshtastic, Reticulum) with its control/data-plane separation — lives in [networking.md](networking.md).
 
 ## 3. Canonical state and command flow
 
@@ -151,3 +155,16 @@ Core code depends on interfaces, never on device models:
 A **station profile** binds these interfaces to a concrete build — which SBC, which radios, which SDRs, which mesh hardware, which power controller. The repository ships example profile shapes (vehicle station, portable station, home ground station); the Good Ancestor VW bus is maintained as the reference profile. Satellite contact parameters are likewise data, not code: a public example satellite profile ships in-repo (with more planned — weather, Inmarsat), and operators load private profiles for spacecraft they are authorized to work.
 
 This is what makes the project reproducible: none of the core software requires the reference implementation's hardware, and supporting a new device means writing an adapter against a small interface, not forking the system.
+
+## See also
+
+This document is the map; each subsystem it names has its own detailed treatment. Nothing below is duplicated here — follow the link for depth.
+
+- [networking.md](networking.md) — the communications topology in full: edge routing and WAN-failover policy, LAN/VLAN segmentation, the mesh tier (HaLow/OpenMANET, Meshtastic, Reticulum), and the control/data-plane firewall boundary.
+- [radios.md](radios.md) — the conventional-radio and SDR subsystems behind Tiers 2 and 3: role assignments, control paths (CAT/CI-V/Hamlib, USB, LAN), and the receive and transmit chains.
+- [power.md](power.md) — the electrical architecture beneath the tiers: Tier 0 supervision, per-domain switching and budgeting, and graceful load-shedding.
+- [safety-model.md](safety-model.md) — the deployment state machine, the stacked transmit-authorization gates, and the prompt-injection stance that keeps received content from becoming instructions.
+- [ai-agent.md](ai-agent.md) — what the model does and does not do, and the typed mission-request interface it uses to reach the orchestrator.
+- [satellite-profiles.md](satellite-profiles.md) — the profile type system, the satellite-hunt mission type, and the local-sky map.
+- [roadmap.md](roadmap.md) — the build phases, ordered by dependency, and where the project currently stands.
+- [reference-build/bom.md](reference-build/bom.md) — the reference-station bill of materials, organized by subsystem, with indicative cost bands.
