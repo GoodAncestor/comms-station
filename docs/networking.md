@@ -18,6 +18,13 @@ This document describes the networking stack by role, so a builder can assemble 
 
 Everything below the WAN edge works with no Internet connection. The WAN is one more bearer — useful when present, never assumed.
 
+The mesh itself spans **two roles distinguished by availability, not by bearer**:
+
+- An **always-on, low-rate mesh** (Meshtastic/LoRa-class) that runs whenever the station is powered — including *while mobile*. It is cheap and low-power enough that keeping it up costs almost nothing, so team position, text, and alerts flow on the road with no deployment step and no mast.
+- A **high-throughput mesh anchor** (Wi-Fi HaLow / AREDN-class) that carries real IP traffic but **benefits from height** — so it is raised on the mast only when the station is parked and deployed, and stows for transit.
+
+This split is bearer-agnostic: the roles are "always-on low-rate, works moving" and "high-throughput, wants elevation, deployed when parked." Any radio that fills a role works. A station can run either alone, or both — the reference build runs both.
+
 Companion documents: the [architecture](architecture.md) places this stack in the tiered system; the [safety model](safety-model.md) covers the control-plane isolation these principles enforce.
 
 ## 1. Accessible bearers most builders start with
@@ -56,6 +63,8 @@ A wired serial gateway is used for the fixed station node because it is more rel
 When a station needs a resilient IP mesh that reaches *further than Wi-Fi through obstacles* while still carrying real IP traffic (voice, maps, file sync), **Wi-Fi HaLow (802.11ah)** in sub-GHz spectrum is one strong choice. It trades raw throughput for range and penetration relative to 2.4/5 GHz Wi-Fi, and unlike LoRa it presents a true IP domain.
 
 **OpenMANET** is a common way to run it: HaLow radios in **802.11s** mesh mode with **BATMAN-adv / BATMAN-V** providing Layer-2/3 resilient routing, presented as a flat routed IP mesh. Nodes are typically small single-board computers with a HaLow modem (for example, boards built around Morse Micro MM6108/MM8108-class chips, such as the "Haven"-family nodes). WPA3-SAE secures the link layer; multicast and mDNS make service discovery work across hops.
+
+Because throughput and range both improve with a clear elevated path, the anchor radio is a natural **mast-deployed** component: raised on the mast when the station is parked (alongside the dish and satellite antennas) and stowed for transit, while the always-on low-rate mesh keeps the team connected on the road. The always-on mesh and the deployed anchor are complementary, not alternatives.
 
 This is presented as *an option*, not a requirement. Reasons a builder might pick it:
 

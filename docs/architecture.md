@@ -10,6 +10,12 @@ The design rule that everything else follows from:
 
 The model never touches hardware directly. Every action flows through a typed request that a conventional, auditable service checks against policy, state, legality, power, and antenna constraints before anything keys up, rotates, or draws current.
 
+A second rule shapes the RF front end specifically:
+
+> **The baseline station is an SDR and parts; proprietary transceivers are optional upgrades.**
+
+The reproducible design requires only a software-defined radio plus supporting components — never a particular manufacturer's transceiver — so the station can be built cheaply and reproduced anywhere. An SDR paired with a transmit chain (amplification, band-pass and low-pass filtering, T/R sequencing, and SWR/power protection — see [sdr-transmit-chain.md](sdr-transmit-chain.md)) covers all receive, scan, and decode work, and can even cover full-duplex satellite transmit, since full-duplex is native to an SDR. A station **MAY** add a proven proprietary appliance where transmit power, reliability, or legality make it worth the cost — the reference build, for example, keeps a 100 W HF radio and an always-on FM radio — but the open design never *requires* one. Where this document names an example model, read it as one way to fill a role, not a dependency.
+
 This document is the **map**. It describes the system in four parts — the tiered power-and-control architecture, the communications topology, the canonical-state command flow, and how the project's four pillars map onto subsystems — and points to the sibling documents that treat each subsystem in depth. Read it to understand how the pieces fit; follow the links in [See also](#see-also) for the detail behind any one of them.
 
 ## 1. Tiered power and control architecture
@@ -62,6 +68,40 @@ TIER 3 — POWER-GATED PERIPHERALS
 The tiers are roles, not shopping lists. Any hardware that fills a role works; the profile system (see §5 and [satellite-profiles.md](satellite-profiles.md)) binds roles to concrete devices per station. The Good Ancestor VW bus ([ev.goodancestor.com](https://ev.goodancestor.com)) is the reference profile — the build the project's requirements are drawn from and tested against.
 
 Two things this section deliberately leaves as roles are treated in full elsewhere: the electrical layer beneath the tiers — Tier 0 supervision, per-domain switching, budgeting, and load-shedding — is detailed in [power.md](power.md), and the conventional-radio and SDR subsystems that populate Tiers 2 and 3 are detailed in [radios.md](radios.md).
+
+### Physical zoning — where things live
+
+The tiers order components by *criticality*. A second, complementary partition orders them by *physical placement*, driven by two questions: **is this component available while the station is mobile, and does its job benefit from height or a short RF path?** A station **MAY** organize its build into three physical zones:
+
+```text
+ZONE A — CABIN / ALWAYS-ON  (works while moving; small permanent antennas only)
+  mission controller (canonical state, orchestrator, operator UI)
+  always-on FM / APRS radio on a small permanent antenna
+  a scanning SDR for listen-while-driving wideband receive
+  edge router + WAN
+  an always-on low-rate mesh node (LoRa-class)
+          ┆  Ethernet + fused 12 V
+ZONE B — MAST-DEPLOY ENCLOSURE  (raised only when parked; stows for transit)
+  a dedicated compute node owning the dish / rotator
+  the satellite SDR(s), digitizing at the feed
+  the high-throughput mesh anchor (benefits from height)
+  feed LNA / bias-tee; optional SDR transmit chain
+          ┆  power-gated
+ZONE C — AI / DSP COMPUTE NODE  (shut-down-able)
+  local models, voice agent, retrieval
+  heavy DSP: wideband survey, GNU Radio, classification, I/Q recording
+  higher-capability / experimental SDRs attached directly here
+```
+
+- **Zone A — cabin / always-on.** Everything that must work while the vehicle is moving, with no deployment step: the mission controller, an always-on low-power FM/APRS radio on a small permanent antenna, a scanning SDR for wideband receive on the road, the edge router and WAN, and an always-on low-rate mesh node. Small, permanently mounted antennas only.
+
+- **Zone B — mast-deploy enclosure.** A self-contained outdoor module, raised on the mast **only when parked** and stowed inside the vehicle when mobile. It houses a dedicated compute node that owns the dish and rotator, the satellite SDR(s), and the high-throughput mesh anchor that benefits from height. The RF design principle is **digitize at the feed**: mounting the SDR inches from the dish feed keeps the lossy high-band coax run to a few centimetres, so the long cables back to the cabin carry only Ethernet (data) and a **fused 12 V power branch** — no RF loss, and Ethernet is indifferent to length. Power comes from that fused 12 V branch plus Ethernet, **not necessarily PoE**: a compute node with several SDRs (and possibly a transmit amplifier) can exceed a PoE budget, so a direct 12 V feed gives headroom. Deploy with the dish and antennas up when parked; unplug and pack the whole module when moving.
+
+- **Zone C — AI / DSP compute node.** The power-gated heavy-compute node: local models and voice agent, plus heavy DSP — wideband survey, GNU Radio, signal classification, large I/Q recording. It is shut down cleanly when its capabilities are not wanted, and nothing always-on depends on it.
+
+**SDR-to-compute placement is flexible and per-task.** There is no single boundary: put each SDR where its processing runs. The mast/dish SDRs live on the mast enclosure's compute node (digitize at the feed, decode locally, forward products). Heavy-DSP or experimental SDRs attach **directly to the AI/DSP compute node** over USB, where the horsepower lives. Both topologies coexist; the only caveat is not streaming raw wideband I/Q over the network when it can be decoded locally and forwarded as products.
+
+The three physical zones map loosely onto the tiers — Zone A is Tier 1 (plus its always-on Tier 3 FM radio), Zone C is Tier 2 — but the mast enclosure deliberately crosses tiers: it carries an always-on-when-deployed control role *and* power-gated receivers in one weatherproof box, because RF logic (short feed, height) dictates the packaging more than criticality does.
 
 ## 2. Communications topology
 
@@ -162,6 +202,7 @@ This document is the map; each subsystem it names has its own detailed treatment
 
 - [networking.md](networking.md) — the communications topology in full: edge routing and WAN-failover policy, LAN/VLAN segmentation, the mesh tier (HaLow/OpenMANET, Meshtastic, Reticulum), and the control/data-plane firewall boundary.
 - [radios.md](radios.md) — the conventional-radio and SDR subsystems behind Tiers 2 and 3: role assignments, control paths (CAT/CI-V/Hamlib, USB, LAN), and the receive and transmit chains.
+- [sdr-transmit-chain.md](sdr-transmit-chain.md) — how an SDR becomes a real transmitter: the amplification, band-pass/low-pass filtering, T/R sequencing, and SWR/power-protection stages that turn SDR baseband into a filtered, legal, protected emission.
 - [power.md](power.md) — the electrical architecture beneath the tiers: Tier 0 supervision, per-domain switching and budgeting, and graceful load-shedding.
 - [safety-model.md](safety-model.md) — the deployment state machine, the stacked transmit-authorization gates, and the prompt-injection stance that keeps received content from becoming instructions.
 - [ai-agent.md](ai-agent.md) — what the model does and does not do, and the typed mission-request interface it uses to reach the orchestrator.

@@ -127,6 +127,30 @@ horizontal/sloping wire for regional NVIS coverage.
 | Anderson/powerpole connectors, wiring, chassis bonding | Standardized DC interconnect and RF grounding/bonding | as needed | $50–200 | core |
 | Portable battery box / auxiliary battery | Off-vehicle power for deployed relay nodes and field kits | 1+ | $150–500 | optional |
 
+## 8. Mast-mounted SDR head (parked deployment)
+
+An **optional** subsystem for stations that deploy a satellite dish/antenna and
+want to digitize at the feed. It packages a small compute node and the
+satellite SDR(s) into a weatherproof enclosure at the mast, so the lossy
+high-band coax run is a few centimetres and the long cables back to the cabin
+carry only Ethernet and power. The head is raised only while parked and stows
+for transit (see the physical-zoning section of
+[architecture.md](../architecture.md)). Within this group the enclosure, SBC,
+SDR, and power feed are the `core` of the subsystem; the transmit-chain parts are
+`optional`, added only when the head also *transmits* — for example full-duplex
+satellite via the SDR (see [sdr-transmit-chain.md](../sdr-transmit-chain.md)).
+
+| Item (example) | Role | Qty | Indicative cost band (US$) | Class |
+|---|---|---:|---|---|
+| Outdoor IP65 pole-mount electronics enclosure (e.g. KrakenRF Discovery Outdoor Enclosure class) | Weatherproof die-cast aluminium housing at the mast; thermal-pad heat path to the case, cable glands, pole clamp; holds the compute node + SDR(s) close to the feed | 1 | $80–180 | core (of this subsystem) |
+| Dedicated single-board compute node | Mast-resident node: owns the dish/rotator control and the satellite SDR plane, runs light local decode so it works with the AI/DSP node off | 1 | $100–250 | core (of this subsystem) |
+| Mast-resident satellite SDR(s) | The dish-feed / satellite-band SDR(s), digitizing inches from the feed; RX (and, with the transmit chain below, TX) | 1–2 | $30–200 each | core (of this subsystem) |
+| PoE-or-12 V power feed to the head (PoE splitter/injector, or fused 12 V branch + weatherproof connectors) | Powers the head over the run from the cabin; a fused 12 V branch avoids a PoE power ceiling when the node plus several SDRs (and a possible amplifier) exceed it | 1 | $20–80 | core (of this subsystem) |
+| Linear power amplifier, VHF/UHF (band-appropriate) | Transmit amplification for the SDR-driven transmit chain; runs hot — heatsink or mount outside the sealed enclosure | 1 | $150–500 | optional (SDR-transmit path only) |
+| Band-pass + low-pass filters (band-appropriate) | Keep the SDR's transmit emission clean and in-band; protect co-sited receivers | 1 set | $50–200 | optional (SDR-transmit path only) |
+| T/R sequencer | Orders switch/PA/PTT timing so nothing is hot-switched between receive and transmit | 1 | $50–150 | optional (SDR-transmit path only) |
+| Directional coupler / SWR-power sensor | Forward/reflected power sensing for the transmit interlock and antenna verification at the feed | 1 | $30–150 | optional (SDR-transmit path only) |
+
 ---
 
 ## Reading this list for your own build

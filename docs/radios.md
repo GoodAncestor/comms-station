@@ -11,8 +11,9 @@ models appear only in parentheses to make a role concrete, and are never
 requirements. A station picks one device per role, or fills a role with what it
 already owns.
 
-The roles divide into four transceiver classes and a set of receive-only
-software-defined radios:
+The roles divide into four transceiver classes and a set of
+software-defined radios — receive-and-analyze by default, and transmit-capable
+when paired with a transmit chain (§0):
 
 1. An always-on, low-power **FM / APRS / packet** radio — the service that stays
    up when everything else is off.
@@ -31,6 +32,41 @@ proposes and deterministic services execute.
 The classes are not redundant. Each is the right tool for a different job, and a
 station that has all four can pick the correct bearer — automatically — for the
 mission at hand rather than forcing every task through one appliance.
+
+## 0. SDR-first: which of these radios you actually need
+
+A conventional transceiver bundles a receiver, a transmit chain, and a **manual
+front panel** — knobs, a display, a mic — into one box. For a station driven by
+software and an AI operator, that front panel is dead weight: nothing on the
+station turns a VFO knob by hand. Strip it away and what a transceiver provides
+is a receiver and a filtered, protected transmit chain — both of which an SDR
+plus discrete parts can supply. So the baseline recipe is **SDR-first**: a
+software-defined radio covers all receive, scan, and decode work, and an SDR
+paired with a **transmit chain** (linear amplification, band-pass and low-pass
+filtering, a T/R sequencer, and SWR/power protection — see
+[sdr-transmit-chain.md](sdr-transmit-chain.md)) can *replace* a discrete radio
+for transmit too. A station **MAY** build entirely around SDRs; the reference
+build does exactly this for most roles.
+
+Keep a proven appliance only where transmit power, reliability, or legality make
+one worth the cost and space:
+
+- **100 W HF** (§2) — the hardest transmit chain to build cleanly at power, and
+  the one where a mature appliance's tuner, filtering, and reliability earn their
+  keep.
+- **Always-on FM / APRS** (§1) — a low-current, always-up service radio is more
+  dependable as a purpose-built appliance than as an SDR that must stay powered
+  and running.
+
+The **satellite radio (§3) is the most SDR-replaceable of the appliances**: the
+one capability that used to justify a dedicated box — full-duplex, transmitting
+on one band while hearing your own downlink on another — is *native* to an SDR,
+which receives and transmits simultaneously by construction. With a VHF/UHF
+transmit chain behind it, an SDR does automated full-duplex satellite work
+directly. A dedicated full-duplex transceiver becomes an **optional** turnkey
+convenience or a known-good reference to validate the SDR path against — not a
+requirement. Read every "such as …" appliance below through this lens: it is one
+way to fill a role, and in most roles an SDR-plus-transmit-chain is the other.
 
 ## 1. Always-on FM / APRS / packet radio
 
@@ -183,12 +219,18 @@ its input handles a few tens of milliwatts, orders of magnitude below any
 amateur transmitter, and always test through fixed attenuators and a DC block
 into a closed cable, never over the air.
 
-An SDR's raw transmit capability is **not** a production transmit path. Turning
-an SDR into a transmitter that leaves an antenna requires band-specific
-filtering, amplification, sequencing, power/SWR monitoring, and receiver
-protection — the very subsystem the dedicated transceivers already provide. In
-this architecture SDRs are receive-and-analyze instruments; the licensed
-transceivers do the transmitting.
+An SDR's raw transmit capability is **not**, on its own, a production transmit
+path. Turning an SDR into a transmitter that leaves an antenna requires
+band-specific filtering, amplification, sequencing, power/SWR monitoring, and
+receiver protection. A dedicated transceiver supplies that subsystem in one box —
+but it can also be **built** as a discrete transmit chain behind the SDR, which
+is exactly what the SDR-first recipe does (see [sdr-transmit-chain.md](sdr-transmit-chain.md)
+for the stages). The rule is therefore not "SDRs never transmit" but "an SDR
+transmits only through a proper chain": a bare SDR output must never reach an
+antenna. Where the reference build keeps a conventional appliance (100 W HF; the
+always-on FM radio), the appliance provides that chain turnkey; where it does
+not, the transmit chain is assembled from discrete parts and gated by the same
+transmit-authorization interlocks.
 
 ## 5. Antennas and receiver protection
 
@@ -287,6 +329,10 @@ not rewiring the trust model.
 
 - [architecture.md](architecture.md) — the tiered power-and-control
   architecture and the canonical-state command flow these radios sit inside.
+- [sdr-transmit-chain.md](sdr-transmit-chain.md) — the discrete transmit chain
+  (amplification, filtering, T/R sequencing, SWR/power protection) that lets an
+  SDR replace a conventional transceiver for transmit, including full-duplex
+  satellite work.
 - [safety-model.md](safety-model.md) — the deployment state machine, transmit-
   authorization gates, and service isolation that bound every transmission.
 - [ai-agent.md](ai-agent.md) — what the model does and does not do, and how its
