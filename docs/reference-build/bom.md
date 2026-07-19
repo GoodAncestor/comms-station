@@ -60,8 +60,8 @@ receive paths are license-free in most places, but check local rules.
 | Item (example) | Role | Qty | Indicative cost band (US$) | Class |
 |---|---|---:|---|---|
 | Low-cost RX-only SDR (e.g. RTL-SDR Blog V4) | Low-power scheduled receive on the mission controller; dish feed or fixed monitoring missions | 2–3 | $30–50 each | core (the minimum viable Observe pillar) |
-| Mid-range full-duplex SDR (e.g. LimeSDR Mini 2.0) | Wideband development SDR on the AI node; 1×1 full-duplex to ~3.5 GHz | 1 | $350–450 | optional |
-| High-end dual-channel SDR (e.g. bladeRF 2.0 micro xA9) | Dual-channel coherent capture, higher bandwidth, FPGA offload; polarization-diversity experiments | 1 | $900–1,100 | optional |
+| Mid-range full-duplex SDR (e.g. LimeSDR Mini 2.0) | **The baseline transmit-capable / satellite SDR:** 1×1 full-duplex, 10 MHz–3.5 GHz — covers the common mobile satellite bands (UHF / L / S) and drives the transmit chain; compact. Also serves as the wideband development SDR. | 1–2 | $350–450 | core for the satellite / transmit pillars |
+| High-end dual-channel SDR (e.g. bladeRF 2.0 micro xA9) | **Optional, advanced only:** 2×2 phase-coherent capture (polarization diversity), coverage to ~6 GHz, and on-board FPGA processing. Physically larger than the Mini — specify only when coherent, above-3.5 GHz, or FPGA work is actually needed. | 0–1 | $900–1,100 | optional (advanced) |
 | HF upconverter (e.g. NooElec Ham It Up Plus class) | HF receive on SDRs that start above HF | 1 | $60–90 | optional |
 | Programmable signal generator / frequency converter (e.g. Othernet moRFeus class) | Closed-cable test source and frequency translation for SDR commissioning | 1 | $150–250 | optional |
 | External regulated bias tee | Stable DC for active antenna feeds, independent of SDR driver state | 1 | $20–50 | core (if using active feeds) |
