@@ -100,6 +100,54 @@ second SDR with a calibrated attenuator is needed to verify spectral purity befo
 on the air. **Never connect a transmitter output to a bare signal-generator input** — its
 maximum input is milliwatts.
 
+## Recommended parts (2 m / 70 cm, researched 2026-07)
+
+Verified against vendor pages. **Measure your SDR's actual TX output first** — it varies by
+band, unit, and gain setting (a LimeSDR Mini runs ~+10–13 dBm / 10–20 mW on 2 m but less on
+70 cm; a bladeRF a few dB lower). That measurement decides whether a band needs no driver, a
+pad, or a gain stage.
+
+**Driver / gain block** — a *linear* MMIC chosen for output P1dB and linearity (OIP3), **not**
+noise figure (this is a transmit driver, not a receive LNA):
+- Mini-Kits PGA-103 board (PGA-103+): ~21 dB gain, OIP3 +39 dBm, 12 V @ 90 mA, ~$25 — cheap and
+  reproducible; needed on 70 cm. Keep it ~6–8 dB below P1dB so it never becomes the distortion source.
+- Mini-Circuits ZX60-V63+ / ZX60-P105LN+: connectorized, ~15 dB, ~$100 — lab-grade alternative.
+
+**2 m linear PA (144–148 MHz):**
+- *Satellite (10–25 W):* **Q5 Signal 2M 25 W** (~$215), ideally the **Low-Drive (2MLDPA)** config —
+  rated for 1–10 mW drive (near-direct from a LimeSDR) and it **integrates an RX LNA, a T/R
+  sequencer, and split TX/RX ports**, so one module also handles receive-protect and the full-duplex
+  plumbing. Explicitly Class-AB linear.
+- *Terrestrial (~50 W):* Q5 2M 75 W (~$315), backed off to ~50 W.
+
+**70 cm linear PA (430–440 MHz):**
+- *Satellite (10–15 W):* **Mini-Kits RA-UHF board + RA30H4047M1 module + one PGA-103 driver** — ~$65
+  total, tiny 12 V board with an onboard LPF. Cheap and reproducible.
+- *Turnkey 25/50/100 W:* Q5/DEMI 7030PA / 7060PA / 70120PA (Class-AB linear; order a low-drive option).
+
+**Filters** — FCC §97.307 requires **≥60 dB** spurious suppression on 2 m (70 cm is good-practice):
+- Pre-PA drive clean-up (low-power SMA): SOTABEAMS 2 m BPF (~$62), RF.Guru 70 cm BPF (~€89).
+- Post-PA harmonic (a transmit band-pass does both jobs): Antennas-Amplifiers ATF-6290 (2 m, 100 W,
+  ~$268) and ATF-6510 (70 cm, 50 W, ~$252); or the module boards' onboard LPFs on the low-power builds.
+
+**Full-duplex satellite (Mode-J):** the failure mode is 2 m's **3rd harmonic (≈435 MHz) landing in the
+70 cm downlink** and deafening your own receiver. Fix: **Comet CF-4160N diplexer** (60 dB isolation,
+~$77, AMSAT-recommended) + a clean 2 m TX filter to kill the harmonic at the source + a 70 cm RX
+band-pass ahead of the preamp.
+
+**T/R sequencer:** QSK USKI-5 (~$159, programmable 1 ms steps, TX-inhibit input — ideal for GPIO/AI
+control), or the sequencer built into the Q5 Low-Drive PA.
+
+**SWR / power sensor:** a directional coupler with DC forward/reverse outputs into an ADC (e.g.
+DXworld-e 2 m bridge, ~€27) for closed-loop SWR fold-back — not a human panel meter.
+
+**Avoid:** Class-C "FM brick" amps (RM Italy KL, Mirage in non-linear mode, no-name eBay bricks) —
+they splatter SSB and linear-transponder signals. Mitsubishi RA-modules are FM-rated and only linear
+with an added Class-AB gate-bias circuit (the Mini-Kits/Q5 boards do this correctly).
+
+**Rough cost of a 2-band full-duplex satellite chain:** ~$700–1,200 depending on filter choices —
+versus ~$2,100 for a turnkey IC-9700, with the SDR approach's flexibility and reproducibility.
+
 ## Related documents
 
 - [architecture.md](architecture.md) — where the mast head and SDR plane sit in the station
