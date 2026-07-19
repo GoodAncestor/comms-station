@@ -232,6 +232,28 @@ always-on FM radio), the appliance provides that chain turnkey; where it does
 not, the transmit chain is assembled from discrete parts and gated by the same
 transmit-authorization interlocks.
 
+### Choosing and placing SDRs
+
+Match the SDR to the job and use the cheapest one that does it. A receive-only
+dongle handles pure reception (including narrowband satellite downlink) for a few
+tens of dollars; a mid-range full-duplex SDR is the workhorse for transmit and for
+satellite work, since one such radio typically covers the whole span of mobile
+satellite bands; a high-end dual-channel SDR with an on-board FPGA is worth its
+higher price only for the jobs that genuinely need it — phase-coherent
+multi-antenna reception (e.g. polarization diversity), coverage above the
+mid-range SDR's ceiling, very wide instantaneous bandwidth, or FPGA-accelerated
+processing. Over-specifying the SDR is a common and avoidable cost.
+
+**Place each SDR at its antenna, not at its compute.** RF loss climbs steeply with
+frequency and cable length, so a high-band SDR belongs at the feed (see the
+mast-deploy zone in [architecture.md](architecture.md)); give it a local host and
+carry only *data* back over distance. **On the FPGA:** an SDR's FPGA does
+sample-rate front-end DSP — down-conversion, decimation, channelization, coherent
+combining — and *reduces the sample stream before it reaches the host*, which lets
+a modest host keep up with a fast SDR. It does **not** replace host compute for
+protocol decoding, forward error correction, classification, or AI; those still
+run on the CPU/GPU tier. The FPGA thins the stream; the host decodes it.
+
 ## 5. Antennas and receiver protection
 
 Because several transmitters share a vehicle with sensitive receivers, antennas
