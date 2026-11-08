@@ -60,3 +60,19 @@ def test_freq_min_greater_than_max_fails(tmp_path):
     data["links"][0]["freq_mhz_max"] = 100.0
     errors = validate_profile(write_profile(tmp_path, data))
     assert errors, "expected validation errors when freq_mhz_min > freq_mhz_max"
+
+
+WEATHER_PROFILE = REPO_ROOT / "profiles" / "examples" / "meteor-m2-4.yaml"
+
+
+def test_weather_example_passes():
+    """The weather-satellite example validates cleanly with the same schema."""
+    assert validate_profile(str(WEATHER_PROFILE)) == []
+
+
+def test_weather_example_is_receive_only():
+    """The weather example declares only downlinks (receive-only station role)."""
+    with open(WEATHER_PROFILE) as fh:
+        data = yaml.safe_load(fh)
+    assert data["type"] == "weather-satellite"
+    assert all(link["direction"] == "downlink" for link in data["links"])

@@ -192,7 +192,7 @@ Core code depends on interfaces, never on device models:
 - `Decoder`
 - `PositionSource`, `TimeSource`
 
-A **station profile** binds these interfaces to a concrete build — which SBC, which radios, which SDRs, which mesh hardware, which power controller. The repository ships example profile shapes (vehicle station, portable station, home ground station); the Good Ancestor VW bus is maintained as the reference profile. Satellite contact parameters are likewise data, not code: a public example satellite profile ships in-repo (with more planned — weather, Inmarsat), and operators load private profiles for spacecraft they are authorized to work.
+A **station profile** binds these interfaces to a concrete build — which SBC, which radios, which SDRs, which mesh hardware, which power controller. The repository ships example profile shapes (vehicle station, portable station, home ground station); the Good Ancestor VW bus is maintained as the reference profile. Satellite contact parameters are likewise data, not code: public example satellite profiles ship in-repo (amateur and weather; Inmarsat planned), and operators load private profiles for spacecraft they are authorized to work.
 
 This is what makes the project reproducible: none of the core software requires the reference implementation's hardware, and supporting a new device means writing an adapter against a small interface, not forking the system.
 

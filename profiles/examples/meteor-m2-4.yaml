@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: CC-BY-4.0
+# Public example profile: Meteor-M N2-4 weather satellite, receive-only (all values are public record).
+# Validate with: python tools/validate_profile.py profiles/examples/meteor-m2-4.yaml
+#
+# Sources (read 2026-11-08):
+#   WMO OSCAR, Satellite: Meteor-M N2-4 (last update 2026-01-23)
+#     https://space.oscar.wmo.int/satellites/view/meteor_m_n2_4
+#     LRPT S-E 137.1 / 137.9 / 137.9125 MHz, 150 kHz, RHCP, 80 kbps; status Operational.
+#   CelesTrak SATCAT record for NORAD 59051 (OBJECT_ID 2024-039A, launch 2024-02-29)
+#     https://celestrak.org/satcat/records.php?CATNR=59051&FORMAT=json
+
+schema_version: 1
+type: weather-satellite
+
+identity:
+  name: Meteor-M N2-4
+  norad_id: 59051
+  intl_designator: 2024-039A
+  operator: Roshydromet / Roscosmos
+
+links:
+  - name: lrpt
+    direction: downlink
+    freq_mhz_min: 137.025
+    freq_mhz_max: 137.9875
+    modulations: [lrpt]
+    bandwidth_khz: 150
+    polarization: rhcp
+    data_rate_kbps: 80
+    notes: >-
+      Low Rate Picture Transmission. WMO OSCAR lists LRPT channels at 137.1,
+      137.9 and 137.9125 MHz, each 150 kHz wide, RHCP, 80 kbps; the range here
+      spans those channels plus half the bandwidth on each side. Only one
+      channel is active at a time and the operator has moved between them, so
+      a receiver should scan or check a current transmitter list. Receivable
+      with an RTL-SDR-class SDR and a 137 MHz QFH or V-dipole antenna; the
+      modulation string names the waveform, which the decoder plugin resolves.
+
+notes: >-
+  Russian polar-orbiting weather satellite (sun-synchronous, about 820 km per
+  WMO OSCAR), launched 2024-02-29. Its LRPT downlink carries selected imager
+  channels and is a common receive-only target for small ground stations.
+  Receive-only: no license is needed to receive in most jurisdictions, and
+  there is nothing to transmit. Verify current channel and status before a
+  pass.
