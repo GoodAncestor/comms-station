@@ -8,7 +8,7 @@ The design goal is a clean separation between the *type system* (public, in this
 
 ## The profile type system
 
-The schema lives at [`profiles/schema/satellite-profile.schema.json`](../profiles/schema/satellite-profile.schema.json). A public example profile lives in [`profiles/examples/`](../profiles/examples/), with more planned (weather, Inmarsat). The validator is [`tools/validate_profile.py`](../tools/validate_profile.py):
+The schema lives at [`profiles/schema/satellite-profile.schema.json`](../profiles/schema/satellite-profile.schema.json). Public example profiles live in [`profiles/examples/`](../profiles/examples/): `iss-ariss.yaml` (amateur) and `meteor-m2-4.yaml` (weather, receive-only), with Inmarsat planned. The validator is [`tools/validate_profile.py`](../tools/validate_profile.py):
 
 ```
 python tools/validate_profile.py <profile.yaml>   # exit 0 = valid, 1 = invalid

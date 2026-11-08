@@ -10,7 +10,7 @@ The phase structure follows the reference implementation's engineering plan (the
 
 First deliverables, in order:
 
-1. **Profile validator** — done. Schema and validator for satellite profiles (`profiles/schema/`, `tools/validate_profile.py`), with one public example profile and more planned (weather, Inmarsat). See [satellite-profiles.md](satellite-profiles.md).
+1. **Profile validator** — done. Schema and validator for satellite profiles (`profiles/schema/`, `tools/validate_profile.py`), with two public example profiles (ISS ARISS amateur, Meteor-M N2-4 weather) and more planned (Inmarsat). See [satellite-profiles.md](satellite-profiles.md).
 2. **Local-sky map** — next. A TinyGS/SatNOGS-style dashboard of what is overhead and upcoming, driven by a local TLE cache and community networks. Deliberately chosen because it is useful before any RF hardware is connected: it needs only the profile system, a TLE fetcher, and a pass predictor, and it exercises the scheduler code every later phase depends on.
 3. **Orchestrator skeleton** — after that. The deterministic core service: canonical state store, event bus, typed mission-request API, and policy checks, initially with simulated adapters only. This is the piece everything else plugs into, per [architecture.md](architecture.md).
 
